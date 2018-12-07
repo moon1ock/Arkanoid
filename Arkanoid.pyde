@@ -5,15 +5,13 @@ class Arkanoid: #game itself
      def __init__(self,dim,dim1):
          self.dim1 = dim1 
          self.dim = dim
-         self.pad = Pad(0,350,725,100)
-         self.ball = Ball(self.pad.x1+50,725,9,0,0,0)
-
-
-         
+         self.pad = Pad(0,350,725,100,49)
+         self.ball = Ball(self.pad.x1+41,707,18,0,0,0,58)
          
      def display(self):
          stroke(0)
          #line(0, self.dim-100, self.dim, self.dim-100)
+
          self.pad.display()
          self.ball.display()
 
@@ -21,13 +19,14 @@ class Arkanoid: #game itself
 
 
 class Ball: #ball, idk yet 
-    def __init__(self, x, y, r, vx, vy, flag):
+    def __init__(self, x, y, r, vx, vy, flag,v):
         self.space = False
-        self.x = x #
-        self.y = y - r  #
-        self.r = r #
+        self.x = x 
+        self.y = y  
+        self.r = r #r = diameter
         self.vx = vx
         self.vy = vy
+        self.img = loadImage(path+'/Images/'+str(v)+'-Breakout-Tiles.png')
         self.flag = flag #flagfall for ball release so that the release func is not called twice
         
     def update(self): ###!!! IS IT OKAY TO HAVE 10 IF STATEMENTS IN A ROW???
@@ -42,22 +41,22 @@ class Ball: #ball, idk yet
         self.y += self.vy*0.3 #ball movement itself
         self.x += self.vx*0.3
         
-        if self.y+self.vy*0.3 <= self.r:  #bouncing off of walls
-            self.y = self.r
-        if self.x+self.vx*0.3 <= self.r:
-            self.x = self.r
-        if self.x+self.vx*0.3 >= 800-self.r:
+        if self.y+self.vy*0.3 <= 0:  #bouncing off of walls
+            self.y = 0
+        if self.x+self.vx*0.3 <= 0:
+            self.x = 0
+        if self.x+self.vx*0.3 +self.r>= 800:
             self.x = 800-self.r
-        if self.y <= self.r:
+        if self.y <= 0:
             self.vy = -self.vy
-        if self.x <= self.r:
+        if self.x <= 0:
             self.vx = -self.vx
-        if self.x >= 800-self.r:
+        if self.x+self.r >= 800:
             self.vx = -self.vx
             
-        if self.y + self.vy*0.3 >= 725-self.r and self.x >= a.pad.x1 and self.x <= a.pad.x1+a.pad.w:
-            self.y = 725-self.r+2
-        if self.x >= a.pad.x1 and self.x <= a.pad.x1+a.pad.w and self.y >= 725-self.r: #bouncing off of the pad
+        if self.y + self.vy*0.3 >= 725 and self.x >= a.pad.x1-3 and self.x <= a.pad.x1+a.pad.w+3 and self.y < 725: #this works with the help of pure magic, dont even try to understand it
+            self.y = 725-self.r                                                                                    # i dont rly get it either 
+        if self.x >= a.pad.x1-4 and self.x <= a.pad.x1+a.pad.w+4 and self.y >= 725-self.r and self.y < 725: #bouncing off of the pad
             self.vy = -self.vy
             
     def collision(self): #just the same as update but for balls and bricks 
@@ -71,7 +70,7 @@ class Ball: #ball, idk yet
     def display(self):
         stroke(0)
         fill(0)
-        ellipse(self.x,self.y,self.r*2,self.r*2)
+        image(self.img,self.x,self.y,self.r,self.r)
         self.update()
         
         
@@ -81,13 +80,13 @@ class Ball: #ball, idk yet
         
 #PAD
 class Pad: #ball bounces off it the exact same way light bounces from a mirror 
-    def __init__(self,vx,x1,y,w):
+    def __init__(self,vx,x1,y,w, v):
         self.keyHandler = {LEFT:False, RIGHT:False}
         self.vx = vx
         self.x1 = x1
         self.y = y
         self.w = w
-        
+        self.img = loadImage(path+'/Images/'+str(v)+'-Breakout-Tiles.png')
         
         
     def update(self):
@@ -111,7 +110,7 @@ class Pad: #ball bounces off it the exact same way light bounces from a mirror
 
     def display(self):
         noFill()
-        rect(self.x1,self.y,self.w,17,10) #rect(x1,y1,width,height, radii)
+        image(self.img,self.x1,self.y,self.w,17) #rect(x1,y1,width,height, radii) #image(self.img,x1,y1,w,h)
         self.update()
         
         
@@ -124,21 +123,19 @@ class Tiles: #breaking tiles on the hit
         pass
         
     
-a = Arkanoid(800,1000)
+a = Arkanoid(1000,800)
 
 
  
 def setup():
     background(255)
-    size(1100, 800)
+    size(a.dim, a.dim1)
 
 def draw():
     frameRate(90) #increasing the frameRate for a more smooth experience 
-    background(255)
-    #line(0,725,800,725)
-    noFill()
-    stroke(0)
-    rect(0,0,800,800)
+    background(0)
+    fill(255)
+    rect(800,-1,1000,800)
     a.display()
 
 
