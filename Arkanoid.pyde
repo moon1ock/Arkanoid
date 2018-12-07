@@ -2,10 +2,12 @@ import os, random
 path = os.getcwd()
 
 class Arkanoid: #game itself
-     def __init__(self,dim):
+     def __init__(self,dim,dim1):
+         self.dim1 = dim1 
          self.dim = dim
-         self.pad = Pad(0,300,725,100)
-         self.ball = Ball(350,725,9,0,0,0)
+         self.pad = Pad(0,350,725,100)
+         self.ball = Ball(self.pad.x1+50,725,9,0,0,0)
+
 
          
          
@@ -19,39 +21,52 @@ class Arkanoid: #game itself
 
 
 class Ball: #ball, idk yet 
-    def __init__(self, x, y, r, g, vx, vy):  ###!!!! wiggling movement 
+    def __init__(self, x, y, r, vx, vy, flag):
         self.space = False
-        self.x = x  #
+        self.x = x #
         self.y = y - r  #
         self.r = r #
-        self.g = g #ground 
-        self.vx = 0
-        self.vy = 0
-        self.flag = 0
+        self.vx = vx
+        self.vy = vy
+        self.flag = flag #flagfall for ball release so that the release func is not called twice
         
-    def update(self):
+    def update(self): ###!!! IS IT OKAY TO HAVE 10 IF STATEMENTS IN A ROW???
         
+        if self.flag == 0: #checking for space press
+            self.x += a.pad.vx
         if self.space == True:
             self.flag += 1
-        if self.flag == 1:
+        if self.flag == 1: #releasing the ball on space
             self.release()
-        self.y += self.vy
-        self.x += self.vx
-        if self.y <= 0:
+        
+        self.y += self.vy*0.3 #ball movement itself
+        self.x += self.vx*0.3
+        
+        if self.y+self.vy*0.3 <= self.r:  #bouncing off of walls
+            self.y = self.r
+        if self.x+self.vx*0.3 <= self.r:
+            self.x = self.r
+        if self.x+self.vx*0.3 >= 800-self.r:
+            self.x = 800-self.r
+        if self.y <= self.r:
             self.vy = -self.vy
-        if self.x <= 0:
+        if self.x <= self.r:
             self.vx = -self.vx
-        if self.x >= 800:
+        if self.x >= 800-self.r:
             self.vx = -self.vx
             
-        if self.x >= a.pad.x1 and self.x <= a.pad.x1+100 and self.y == 725:
+        if self.y + self.vy*0.3 >= 725-self.r and self.x >= a.pad.x1 and self.x <= a.pad.x1+a.pad.w:
+            self.y = 725-self.r+2
+        if self.x >= a.pad.x1 and self.x <= a.pad.x1+a.pad.w and self.y >= 725-self.r: #bouncing off of the pad
             self.vy = -self.vy
             
+    def collision(self): #just the same as update but for balls and bricks 
+        pass
             
         
     def release(self):
-        self.vx = random.randint(-6,6)
-        self.vy = -3
+        self.vx = random.choice([random.randint(-9,-5), random.randint(5,9)])
+        self.vy = -10
     
     def display(self):
         stroke(0)
@@ -109,16 +124,21 @@ class Tiles: #breaking tiles on the hit
         pass
         
     
-a = Arkanoid(800)
+a = Arkanoid(800,1000)
 
 
  
 def setup():
-    background(0)
-    size(a.dim, a.dim)
+    background(255)
+    size(1100, 800)
 
 def draw():
+    frameRate(90) #increasing the frameRate for a more smooth experience 
     background(255)
+    #line(0,725,800,725)
+    noFill()
+    stroke(0)
+    rect(0,0,800,800)
     a.display()
 
 
