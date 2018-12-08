@@ -20,7 +20,6 @@ class Arkanoid: #game itself
          self.ball.display()
          
      def display0(self):
-         self.ball.display0()
          for i in self.ballz:
             i.display0()
     
@@ -65,8 +64,9 @@ class Ball: #ball, idk yet
         if self.x+self.r >= 800:
             self.vx = -self.vx
             
-        if self.y + self.vy*0.3 >= 725 and self.x >= a.pad.x1-3 and self.x <= a.pad.x1+a.pad.w+3 and self.y < 725: #this works with the help of pure magic, dont even try to understand it
-            self.y = 725-self.r                                                                                    # i dont rly get it either 
+        if self.y + self.vy*0.3 >= 725 and self.x >= a.pad.x1-4 and self.x <= a.pad.x1+a.pad.w+4 and self.y < 725: #this works with the help of pure magic, dont even try to understand it
+            self.vy = -self.vy
+            #self.y = 725-self.r                                                                                    # i dont rly get it either 
         if self.x >= a.pad.x1-4 and self.x <= a.pad.x1+a.pad.w+4 and self.y >= 725-self.r and self.y < 725: #bouncing off of the pad
             self.vy = -self.vy
             
@@ -182,15 +182,15 @@ def draw():
     line(803,0,803,800)
     if a.state == 0: 
         a.display0()
-    elif a.state == 1:
-        a.display()
-    if a.state == 0:
         if 300<= mouseX <= 520 and 350<=mouseY<=410:
             fill(0,255,0)
         else:
             fill(255)
         textSize(42)
         text("Play Game", 300, 400)
+    else:
+        a.display()
+
 
 
 
