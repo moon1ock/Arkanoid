@@ -1,5 +1,5 @@
 import os, random
-path = os.getcwd()
+path = os.getcwd() #fix top collision, add stats, optimize the game and add modes
 
 class Arkanoid: #game itself
      def __init__(self,dim,dim1):
@@ -9,7 +9,7 @@ class Arkanoid: #game itself
          self.ball = Ball(self.pad.x1+41,707,18,0,0,0,58)
          self.ballz = []
          self.tiles = []
-         for j in range(160):
+         for j in range(80):
              self.tiles.append(Tile(j//16,j%16))
          
          
@@ -44,7 +44,7 @@ class Ball: #ball, idk yet
         self.flag = flag #flagfall for ball release so that the release func is not called twice
         self.cn = 0 #used for giving a random value to the ball for menu screen once
         
-    def update(self): ###!!! IS IT OKAY TO HAVE 10 IF STATEMENTS IN A ROW???
+    def update(self): ###!!! FIX IF AND RESIZEMENTS OF TEH BALL AND THE PAD
         
         if self.flag == 0: #checking for space press
             self.x += a.pad.vx
@@ -121,7 +121,7 @@ class Ball: #ball, idk yet
         
         for i in a.tiles:
             
-            if self.x + self.r/2 >= i.c*50 and self.x+self.r/2 <=i.c*50+50 and self.y <= i.r*20+20 and self.y >= i.r*20:
+            if self.x + self.r/2 >= i.c*50 and self.x+self.r/2 <=i.c*50+50 and self.y <= i.r*20+20 and self.y >= i.r*20+10:
                 if i.state == 2:
                     i.state = 1
                 else:
@@ -189,7 +189,7 @@ class Pad: #ball bounces off it the exact same way light bounces from a mirror
 class Tile: #breaking tiles on the hit 
     def __init__(self, r, c):
         '''tiles have state (untouched or halfbroken), row and col'''
-        self.r = r
+        self.r = r*2
         self.c = c
         self.state = 2
         self.imv = random.randint(0,9)*2+1 #this gives a random color to the tile
