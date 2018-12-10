@@ -182,7 +182,7 @@ class Tile: #breaking tiles on the hit
         self.r = r
         self.c = c
         self.state = 2
-        self.imv =2# random.randint(0,9)*2+1 #this gives a random color to the tile
+        self.imv = random.randint(0,9)*2+1 #this gives a random color to the tile
         self.img = loadImage(path+'/Images/'+str(self.imv)+'.png')
         
         
