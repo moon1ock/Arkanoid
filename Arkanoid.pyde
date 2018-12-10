@@ -8,6 +8,11 @@ class Arkanoid: #game itself
          self.pad = Pad(0,350,725,100,49)
          self.ball = Ball(self.pad.x1+41,707,18,0,0,0,58)
          self.ballz = []
+         self.tiles = []
+         for j in range(160):
+             self.tiles.append(Tile(j//16,j%16))
+         
+         
          for i in range(15):
              self.ballz.append(Ball(self.pad.x1+41,707,18,0,0,0,58))
          self.state = 0 # 0 -- menu, 1 -- gameplay
@@ -18,6 +23,8 @@ class Arkanoid: #game itself
 
          self.pad.display()
          self.ball.display()
+         for j in self.tiles:
+             j.display()
          
      def display0(self):
          for i in self.ballz:
@@ -47,9 +54,7 @@ class Ball: #ball, idk yet
             self.flag += 1
         if self.flag == 1: #releasing the ball on space
             self.release()
-        
-        self.y += self.vy*0.3 #ball movement itself
-        self.x += self.vx*0.3
+    
         
         if self.y+self.vy*0.3 <= 0:  #bouncing off of walls
             self.y = 0
@@ -59,20 +64,32 @@ class Ball: #ball, idk yet
             self.x = 800-self.r
         if self.y <= 0:
             self.vy = -self.vy
-        if self.x <= 0:
+        if self.x <= 0: #COMBINE THESE |
             self.vx = -self.vx
         if self.x+self.r >= 800:
-            self.vx = -self.vx
+            self.vx = -self.vx #|
             
-        if self.y + self.vy*0.3 >= 725 and self.x >= a.pad.x1-4 and self.x <= a.pad.x1+a.pad.w+4 and self.y < 725: #this works with the help of pure magic, dont even try to understand it
-            self.vy = -self.vy
-            #self.y = 725-self.r                                                                                    # i dont rly get it either 
-        if self.x >= a.pad.x1-4 and self.x <= a.pad.x1+a.pad.w+4 and self.y >= 725-self.r and self.y < 725: #bouncing off of the pad
+        if self.y + self.vy*0.3+self.r//2 >= 725 and self.x >= a.pad.x1-4 and self.x <= a.pad.x1+a.pad.w+4 and self.y < 725: #this works with the help of pure magic, dont even try to understand it
+            self.y = 725 - self.r
             self.vy = -self.vy
             
+        # if self.x >= a.pad.x1-4 and self.x <= a.pad.x1+a.pad.w+4 and self.y >= 725-self.r and self.y < 725: #bouncing off of the pad
+        #     self.vy = -self.vy
             
+        self.y += self.vy*0.3 #ball movement itself
+        self.x += self.vx*0.3
+        
+        if self.y > 820:
+            self.flag = 0
+            self.cn = 0
+            self.vx = 0
+            self.vy = 0
+            self.x = a.pad.x1+41
+            self.y = 707
+
+        
     def display0(self): #just random animation during the menu screen
-        if self.cn==0:
+        if not self.cn:
             self.vx = random.choice([random.randint(-25,-6), random.randint(6,25)])
             self.vy = -random.randint(5,25)
             self.cn = 1
@@ -159,9 +176,19 @@ class Pad: #ball bounces off it the exact same way light bounces from a mirror
         
         
 #TILES
-class Tiles: #breaking tiles on the hit 
-    def __init__(self, r, c, v = 2 ):
-        pass
+class Tile: #breaking tiles on the hit 
+    def __init__(self, r, c):
+        '''tiles have state (untouched or halfbroken), row and col'''
+        self.r = r
+        self.c = c
+        self.state = 2
+        self.imv =2# random.randint(0,9)*2+1 #this gives a random color to the tile
+        self.img = loadImage(path+'/Images/'+str(self.imv)+'.png')
+        
+        
+    def display(self):
+        image(self.img,self.c*50,self.r*20)
+
         
     
 a = Arkanoid(1000,800)
@@ -174,6 +201,8 @@ def setup():
     size(a.dim, a.dim1)
 
 def draw():
+    
+    
     frameRate(90) #increasing the frameRate for a more smooth experience 
     background(0)
 
