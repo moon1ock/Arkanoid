@@ -29,8 +29,6 @@ class Arkanoid: #game itself
      def display0(self):
          for i in self.ballz:
             i.display0()
-    
-
 
 
 
@@ -102,8 +100,10 @@ class Ball: #ball, idk yet
 
         if self.y+self.vy*0.3 <= 0:  #bouncing off of walls
             self.y = 0
+        
         if self.x+self.vx*0.3 <= 0:
             self.x = 0
+        
         if self.x+self.vx*0.3 +self.r>= 800:
             self.x = 800-self.r
         if self.y <= 0:
@@ -118,7 +118,16 @@ class Ball: #ball, idk yet
             self.vy = -self.vy
             
     def collision(self): #just the same as update but for balls and bricks 
-        pass
+        
+        for i in a.tiles:
+            
+            if self.x + self.r/2 >= i.c*50 and self.x+self.r/2 <=i.c*50+50 and self.y <= i.r*20+20 and self.y >= i.r*20:
+                if i.state == 2:
+                    i.state = 1
+                else:
+                    a.tiles.remove(i)
+                self.vy = -self.vy 
+                return
             
         
     def release(self):
@@ -130,6 +139,7 @@ class Ball: #ball, idk yet
         fill(0)
         image(self.img,self.x,self.y,self.r,self.r)
         self.update()
+        self.collision()
         
         
         
@@ -187,7 +197,11 @@ class Tile: #breaking tiles on the hit
         
         
     def display(self):
-        image(self.img,self.c*50,self.r*20)
+        if self.state == 2:
+            image(self.img,self.c*50,self.r*20)
+        if self.state == 1:
+            self.img = loadImage(path+'/Images/'+str(self.imv+1)+'.png')
+            image(self.img,self.c*50,self.r*20)
 
         
     
@@ -209,6 +223,11 @@ def draw():
     stroke(255)
     strokeWeight(6)
     line(803,0,803,800)
+    #statistics
+    
+    
+    
+    #game states
     if a.state == 0: 
         a.display0()
         if 300<= mouseX <= 520 and 350<=mouseY<=410:
@@ -219,6 +238,8 @@ def draw():
         text("Play Game", 300, 400)
     else:
         a.display()
+        
+
 
 
 
