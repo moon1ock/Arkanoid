@@ -1,5 +1,5 @@
-import os, random
-path = os.getcwd() #fix top collision, add stats, optimize the game and add modes
+import os, random #GOALS
+path = os.getcwd() # add stats, add modes
 
 class Arkanoid: #game itself
      def __init__(self,dim,dim1):
@@ -56,16 +56,20 @@ class Ball: #ball, idk yet
         
         if self.y+self.vy*0.3 <= 0:  #bouncing off of walls
             self.y = 0
+            
         if self.x+self.vx*0.3 <= 0:
             self.x = 0
+            
         if self.x+self.vx*0.3 +self.r>= 800:
             self.x = 800-self.r
+            
         if self.y <= 0:
             self.vy = -self.vy
-        if self.x <= 0: #COMBINE THESE |
+        if self.x <= 0 or self.x+self.r >= 800: 
             self.vx = -self.vx
-        if self.x+self.r >= 800:
-            self.vx = -self.vx #|
+            
+        # if self.x+self.r >= 800:
+        #     self.vx = -self.vx #|
             
         if self.y + self.vy*0.3+self.r//2 >= 725 and self.x >= a.pad.x1-4 and self.x <= a.pad.x1+a.pad.w+4 and self.y < 725: #this works with the help of pure magic, dont even try to understand it
             self.y = 725 - self.r
@@ -118,16 +122,59 @@ class Ball: #ball, idk yet
             self.vy = -self.vy
             
     def collision(self): #just the same as update but for balls and bricks 
-        
+        '''here the order of checking is tremendously 
+        important as a 'YES' after an if function breaks
+        the loop and returns, yet we have to try to catch 
+        the most precise collision. Based on the tests that 
+        I've developped, the left bounce is the least prominent
+        or possible one, while the top bounce is has the biggest 
+        likelyhood, thus i placed it last'''
         for i in a.tiles:
-            
-            if self.x + self.r/2 >= i.c*50 and self.x+self.r/2 <=i.c*50+50 and self.y <= i.r*20+20 and self.y >= i.r*20+10:
+              if self.x + self.r >= i.c*50 and self.x+self.r <=i.c*50+25 and self.y+self.r/2 >= i.r*20 and self.y + self.r/2 <= i.r*20+20: #check for the left bounce
                 if i.state == 2:
-                    i.state = 1
+                    k = random.randint(1,10)
+                    if k >= 7:
+                        i.state = 1
+                    else:
+                        a.tiles.remove(i)
+                else:
+                    a.tiles.remove(i)
+                self.vx = -self.vx
+                return
+              elif self.x <=i.c*50+50 and self.x >= i.c*50+25 and self.y+self.r/2 >= i.r*20 and self.y + self.r/2 <= i.r*20+20: #check for the right bounce
+                if i.state == 2:
+                    k = random.randint(1,10)
+                    if k >= 7:
+                        i.state = 1
+                    else:
+                        a.tiles.remove(i)
+                else:
+                    a.tiles.remove(i)
+                self.vx = -self.vx
+                return
+              elif self.x + self.r/2 >= i.c*50-3 and self.x+self.r/2 <=i.c*50+50+3 and self.y <= i.r*20+20 and self.y >= i.r*20+10: #check for the bottom bounce
+                if i.state == 2:
+                    k = random.randint(1,10)
+                    if k >= 7:
+                        i.state = 1
+                    else:
+                        a.tiles.remove(i)
                 else:
                     a.tiles.remove(i)
                 self.vy = -self.vy 
                 return
+              elif self.x + self.r/2 >= i.c*50-3 and self.x+self.r/2 <=i.c*50+50+3 and self.y+self.r >= i.r*20 and self.y + self.r <= i.r*20+10: #check for the top bounce
+                if i.state == 2:
+                    k = random.randint(1,10)
+                    if k >= 7:
+                        i.state = 1
+                    else:
+                        a.tiles.remove(i)
+                else:
+                    a.tiles.remove(i)
+                self.vy = -self.vy 
+                return
+
             
         
     def release(self):
