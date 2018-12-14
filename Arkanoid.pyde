@@ -1,5 +1,6 @@
-import os, random #GOALS
-path = os.getcwd() # add stats, add modes
+import os, random 
+path = os.getcwd() 
+
 
 class Arkanoid: #game itself
      def __init__(self,dim,dim1):
@@ -9,9 +10,14 @@ class Arkanoid: #game itself
          self.ball = Ball(self.pad.x1+41,707,18,0,0,0,58)
          self.ballz = []
          self.tiles = []
+         self.statiles = {}
+         self.blink = 0
+         self.frames = 0
          for j in range(80):
              self.tiles.append(Tile(j//16,j%16))
-         
+         self.hp = 3
+         self.hpimg = loadImage(path+'/Images/60.png')
+         self.gameover = loadImage(path+'/Images/99.png')
          
          for i in range(15):
              self.ballz.append(Ball(self.pad.x1+41,707,18,0,0,0,58))
@@ -20,7 +26,10 @@ class Arkanoid: #game itself
      def display(self):
          #stroke(0)
          #line(0, self.dim-100, self.dim, self.dim-100)
-
+         if len(self.tiles) == 0:
+             self.ball.vy = -self.ball.vy
+             for j in range(random.randint(5,60)):
+                self.tiles.append(Tile(j//16,j%16))
          self.pad.display()
          self.ball.display()
          for j in self.tiles:
@@ -29,6 +38,23 @@ class Arkanoid: #game itself
      def display0(self):
          for i in self.ballz:
             i.display0()
+            
+     def stats(self):
+        textSize(30)
+        fill(255)
+        text("Statistics", 835, 30)
+        fill(255,224,189)
+        text("Statistics", 837, 30)
+        textSize(20)
+        fill(220,20,60)
+        text("Hp:", 817, 80)
+        for i in range(self.hp):
+            image(self.hpimg, 855+i*27, 67)
+        for i in self.statiles:
+            textSize(25)
+            fill(255)
+            text(':x'+str(self.statiles[i]), 873, 106+20*i)
+        
 
 
 
@@ -44,7 +70,7 @@ class Ball: #ball, idk yet
         self.flag = flag #flagfall for ball release so that the release func is not called twice
         self.cn = 0 #used for giving a random value to the ball for menu screen once
         
-    def update(self): ###!!! FIX IF AND RESIZEMENTS OF TEH BALL AND THE PAD
+    def update(self): 
         
         if self.flag == 0: #checking for space press
             self.x += a.pad.vx
@@ -67,28 +93,28 @@ class Ball: #ball, idk yet
             self.vy = -self.vy
         if self.x <= 0 or self.x+self.r >= 800: 
             self.vx = -self.vx
+ 
             
-        # if self.x+self.r >= 800:
-        #     self.vx = -self.vx #|
-            
-        if self.y + self.vy*0.3+self.r//2 >= 725 and self.x >= a.pad.x1-4 and self.x <= a.pad.x1+a.pad.w+4 and self.y < 725: #this works with the help of pure magic, dont even try to understand it
+        if self.y + self.vy*0.3+self.r//2 >= 725 and self.x >= a.pad.x1-4 and self.x <= a.pad.x1+a.pad.w+4 and self.y < 725: 
             self.y = 725 - self.r
-            self.vy = -self.vy
+            self.vy = -self.vy +random.randint(-1,1)
             
-        # if self.x >= a.pad.x1-4 and self.x <= a.pad.x1+a.pad.w+4 and self.y >= 725-self.r and self.y < 725: #bouncing off of the pad
-        #     self.vy = -self.vy
-            
+    
         self.y += self.vy*0.3 #ball movement itself
         self.x += self.vx*0.3
         
         if self.y > 820:
-            self.flag = 0
-            self.cn = 0
-            self.vx = 0
-            self.vy = 0
-            self.x = a.pad.x1+41
-            self.y = 707
-
+            if a.hp == 0:
+                a.state = 2
+            else:
+                a.hp -= 1
+                self.flag = 0
+                self.cn = 0
+                self.vx = 0
+                self.vy = 0
+                self.x = a.pad.x1+41
+                self.y = 707
+    
         
     def display0(self): #just random animation during the menu screen
         if not self.cn:
@@ -96,7 +122,7 @@ class Ball: #ball, idk yet
             self.vy = -random.randint(5,25)
             self.cn = 1
             
-        image(self.img,self.x,self.y,self.r,self.r)
+        image(self.img,self.x,self.y)
         self.y += self.vy*0.3 #ball movement itself
         self.x += self.vx*0.3
         #print(self.vx,self.vy)
@@ -137,8 +163,10 @@ class Ball: #ball, idk yet
                         i.state = 1
                     else:
                         a.tiles.remove(i)
+                        a.statiles[i.imv]+=1
                 else:
                     a.tiles.remove(i)
+                    a.statiles[i.imv]+=1
                 self.vx = -self.vx
                 return
               elif self.x <=i.c*50+50 and self.x >= i.c*50+25 and self.y+self.r/2 >= i.r*20 and self.y + self.r/2 <= i.r*20+20: #check for the right bounce
@@ -148,8 +176,10 @@ class Ball: #ball, idk yet
                         i.state = 1
                     else:
                         a.tiles.remove(i)
+                        a.statiles[i.imv]+=1
                 else:
                     a.tiles.remove(i)
+                    a.statiles[i.imv]+=1
                 self.vx = -self.vx
                 return
               elif self.x + self.r/2 >= i.c*50-3 and self.x+self.r/2 <=i.c*50+50+3 and self.y <= i.r*20+20 and self.y >= i.r*20+10: #check for the bottom bounce
@@ -159,8 +189,10 @@ class Ball: #ball, idk yet
                         i.state = 1
                     else:
                         a.tiles.remove(i)
+                        a.statiles[i.imv]+=1
                 else:
                     a.tiles.remove(i)
+                    a.statiles[i.imv]+=1
                 self.vy = -self.vy 
                 return
               elif self.x + self.r/2 >= i.c*50-3 and self.x+self.r/2 <=i.c*50+50+3 and self.y+self.r >= i.r*20 and self.y + self.r <= i.r*20+10: #check for the top bounce
@@ -170,21 +202,24 @@ class Ball: #ball, idk yet
                         i.state = 1
                     else:
                         a.tiles.remove(i)
+                        a.statiles[i.imv]+=1
                 else:
                     a.tiles.remove(i)
+                    a.statiles[i.imv]+=1
                 self.vy = -self.vy 
                 return
 
             
         
     def release(self):
-        self.vx = random.choice([random.randint(-9,-5), random.randint(5,9)])
-        self.vy = -10
+        self.vx = random.choice([random.randint(-14,-8), random.randint(8,14)])
+        self.vy = -14
+        a.blink = 1
     
     def display(self):
         stroke(0)
         fill(0)
-        image(self.img,self.x,self.y,self.r,self.r)
+        image(self.img,self.x,self.y)#,self.r,self.r)
         self.update()
         self.collision()
         
@@ -195,7 +230,7 @@ class Ball: #ball, idk yet
         
 #PAD
 class Pad: #ball bounces off it the exact same way light bounces from a mirror 
-    def __init__(self,vx,x1,y,w, v):
+    def __init__(self,vx,x1,y,w,v):
         self.keyHandler = {LEFT:False, RIGHT:False}
         self.vx = vx
         self.x1 = x1
@@ -203,15 +238,14 @@ class Pad: #ball bounces off it the exact same way light bounces from a mirror
         self.w = w
         self.img = loadImage(path+'/Images/'+str(v)+'-Breakout-Tiles.png')
         
-        
     def update(self):
         self.x1 += self.vx
         # self.x2 += self.vx 
         
         if self.keyHandler[LEFT]: #if LEFT KEY pressed give negative velocity 
-            self.vx = -5
+            self.vx = -6
         elif self.keyHandler[RIGHT]: #positive self.vx if RIGHT pressed
-            self.vx = 5
+            self.vx = 6
         else:
             self.vx = 0 #fixing the bug when a key is not pressed but the pad continues to move
    
@@ -225,7 +259,7 @@ class Pad: #ball bounces off it the exact same way light bounces from a mirror
 
     def display(self):
         noFill()
-        image(self.img,self.x1,self.y,self.w,17) #rect(x1,y1,width,height, radii) #image(self.img,x1,y1,w,h)
+        image(self.img,self.x1,self.y) #rect(x1,y1,width,height, radii) #image(self.img,x1,y1,w,h)
         self.update()
         
         
@@ -244,18 +278,20 @@ class Tile: #breaking tiles on the hit
         
         
     def display(self):
+        if self.imv not in a.statiles:
+            a.statiles[self.imv] = 0
         if self.state == 2:
             image(self.img,self.c*50,self.r*20)
         if self.state == 1:
             self.img = loadImage(path+'/Images/'+str(self.imv+1)+'.png')
             image(self.img,self.c*50,self.r*20)
 
-        
+        image(self.img, 830, 90+20*self.imv)
     
-a = Arkanoid(1000,800)
 
 
- 
+
+
 def setup():
     background(255)
     #fullScreen()
@@ -263,7 +299,9 @@ def setup():
 
 def draw():
     
-    
+    a.frames +=1 
+    frames = a.frames//30
+
     frameRate(90) #increasing the frameRate for a more smooth experience 
     background(0)
 
@@ -271,7 +309,7 @@ def draw():
     strokeWeight(6)
     line(803,0,803,800)
     #statistics
-    
+    a.stats()
     
     
     #game states
@@ -283,23 +321,46 @@ def draw():
             fill(255)
         textSize(42)
         text("Play Game", 300, 400)
-    else:
+    elif a.state == 1:
+        if a.blink == 0: #creating blinking text
+            if frames % 2 == 1:
+                fill(0)
+            else:
+                fill(255)
+            textSize(20)
+            text('PRESS SPACE',340,400)
+
         a.display()
         
+    elif a.state == 2:
+        a.display()
+        image(a.gameover, 200, 330)
+        fill(255)
+        textSize(14)
+        text('(Thank you for testing out our project, we sincerely hope you liked it!)', 310, 750)
+            
 
+        
 
-
+class Star:
+    def __init__(self,r,c):
+        self.r = r
+        self.c = c
 
 
 def keyPressed():
-    if keyCode == LEFT:
-         a.pad.keyHandler[LEFT] = True
-    elif keyCode == RIGHT:
-         a.pad.keyHandler[RIGHT] = True
-    if keyCode == 32:
-        a.ball.space = True
-         
-         
+    if a.state != 2:
+        if keyCode == LEFT:
+            a.pad.keyHandler[LEFT] = True
+        elif keyCode == RIGHT:
+            a.pad.keyHandler[RIGHT] = True
+        if keyCode == 32:
+            a.ball.space = True
+            
+            
+            
+a = Arkanoid(1000,800)
+            
 def keyReleased():
      if keyCode == LEFT:
          a.pad.keyHandler[LEFT] = False
@@ -310,5 +371,6 @@ def keyReleased():
         
         
 def mouseClicked():
-    if 300<= mouseX <= 520 and 350<=mouseY<=410:
-            a.state = 1
+    if a.state == 0:
+        if 300<= mouseX <= 520 and 350<=mouseY<=410:
+                a.state = 1
