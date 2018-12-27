@@ -1,10 +1,11 @@
-import os, random 
-path = os.getcwd() 
+import os, random
+path = os.getcwd()
+
 
 
 class Arkanoid: #game itself
      def __init__(self,dim,dim1):
-         self.dim1 = dim1 
+         self.dim1 = dim1
          self.dim = dim
          self.pad = Pad(0,350,725,100,49)
          self.ball = Ball(self.pad.x1+41,707,18,0,0,0,58)
